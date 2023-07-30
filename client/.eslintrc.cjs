@@ -34,7 +34,7 @@ module.exports = {
     "import/order": [
       "warn",
       {
-        "groups": ["type", "builtin", "object", "external", "internal", "parent", "sibling", "index"],
+        "groups": ["builtin", "object", "external", "internal", "parent", "sibling", "index", "type"],
         "pathGroups": [
           {
             "pattern": "~/**",
@@ -53,6 +53,14 @@ module.exports = {
         "shorthandFirst": true,
         "noSortAlphabetically": false,
         "reservedFirst": true
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
       }
     ],
     "padding-line-between-statements": [
