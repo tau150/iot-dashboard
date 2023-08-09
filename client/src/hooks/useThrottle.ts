@@ -2,11 +2,13 @@ import { useEffect, useState, useRef } from "react";
 
 interface UseThrottleParams<T> {
   value: T;
+  immediateReturnCb?: (prevState: T, value: T) => T;
   isImmediateReturn?: boolean;
   interval?: number;
 }
 export const useThrottle = <T>({
   value,
+  immediateReturnCb,
   isImmediateReturn,
   interval = 1000,
 }: UseThrottleParams<T>): T => {
@@ -15,7 +17,9 @@ export const useThrottle = <T>({
 
   useEffect(() => {
     if (isImmediateReturn) {
-      setThrottledValue(value);
+      setThrottledValue((prevState) => {
+        return immediateReturnCb ? immediateReturnCb(prevState, value) : value;
+      });
 
       return;
     }
@@ -30,7 +34,7 @@ export const useThrottle = <T>({
 
       return () => clearTimeout(timerId);
     }
-  }, [value, interval, isImmediateReturn]);
+  }, [value, interval, isImmediateReturn, immediateReturnCb]);
 
   return throttledValue;
 };

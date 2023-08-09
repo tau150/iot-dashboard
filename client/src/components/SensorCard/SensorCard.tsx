@@ -1,38 +1,46 @@
 import React, { ReactElement } from "react";
 
 import { SensorModel, SensorActionStatus } from "../../model/Sensor";
-import { Toggle } from "../Toggle/Toggle";
 import { theme } from "../../theme";
+import { CompoundToggle } from "../Toggle/CompoundToggle/CompoundToggle";
+import { ToggleItem } from "../ToggleItem/ToggleItem";
 
 import { Card, CardTitle, ValuesContent } from "./SensorCard.styled";
 
 interface Props {
   sensor: SensorModel;
-  onCheckboxClick: (sensorId: string, status: SensorActionStatus) => void;
+  onCheckboxClick: (sensorId: string, status: string) => void;
 }
-
-const options = [
-  { label: "Connect", color: theme.colors.success, value: SensorActionStatus.CONNECTED },
-  { label: "Disconnect", color: theme.colors.warning, value: SensorActionStatus.DISCONNECT },
-];
 
 const SensorCard = React.memo(
   ({ sensor, onCheckboxClick }: Props): ReactElement => {
-    const handleClick = (toggleValue: SensorActionStatus) => {
+    const handleClick = (toggleValue: string) => {
       onCheckboxClick(sensor.id, toggleValue);
     };
 
     const isConnected = sensor.connected;
+    const selectedItem = isConnected ? SensorActionStatus.CONNECTED : SensorActionStatus.DISCONNECT;
 
     return (
-      <Card $isConnected={isConnected} style={{ animationDuration: "1s" }}>
-        <Toggle<SensorActionStatus>
-          activeOption={isConnected ? SensorActionStatus.CONNECTED : SensorActionStatus.DISCONNECT}
-          options={options}
-          onToggleClick={handleClick}
-        />
+      <Card $isConnected={isConnected}>
+        <CompoundToggle selectedItem={selectedItem}>
+          <ToggleItem
+            color={theme.colors.success}
+            value={SensorActionStatus.CONNECTED}
+            onClick={handleClick}
+          >
+            Connect
+          </ToggleItem>
+          <ToggleItem
+            color={theme.colors.warning}
+            value={SensorActionStatus.DISCONNECT}
+            onClick={handleClick}
+          >
+            Disconnect
+          </ToggleItem>
+        </CompoundToggle>
         <ValuesContent $isConnected={isConnected}>
-          {sensor.value ?? "-"} {sensor.unit}
+          {sensor.value ?? sensor.prevValue} {sensor.unit}
         </ValuesContent>
         <CardTitle $isConnected={isConnected}>{sensor.name}</CardTitle>
       </Card>

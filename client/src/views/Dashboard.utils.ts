@@ -1,15 +1,8 @@
 import { SensorModel } from "../model/Sensor";
 
-export const mergeState = (state: SensorModel[] | [], data: SensorModel): SensorModel[] => {
-  const existingElementIndex = state.findIndex((el) => el.id === data.id);
-
-  if (existingElementIndex !== -1) {
-    const newState = [...state];
-
-    newState[existingElementIndex] = data;
-
-    return newState;
-  }
-
-  return [...state, data];
+export const mergeState = (
+  state: Record<string, SensorModel>,
+  data: SensorModel,
+): Record<string, SensorModel> => {
+  return { ...state, [data.id]: { ...data, prevValue: state?.[data.id]?.value } };
 };

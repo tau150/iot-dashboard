@@ -1,78 +1,65 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 
 import { ErrorSection } from "../components/ErrorSection/ErrorSection";
-import { SensorActionStatus } from "../model/Sensor";
-import { Toggle } from "../components/Toggle/Toggle";
 import { useSocketContext } from "../hooks/useSocketContext";
 import { SensorCardWrapper } from "../components/SensorCard/SensorCardWrapper";
+import { Header } from "../components/Header/Header";
+import { Filters } from "../model/Sensor";
 
 import { mergeState } from "./Dashboard.utils";
 import {
   MainContainer,
   ContentContainer,
-  MainTitle,
   CardsContainer,
-  ToggleWrapper,
   NoDataTitleContainer,
 } from "./Dashboard.styled";
 
 import type { SensorModel } from "../model/Sensor";
 
-enum ToggleOptions {
-  ALL = "ALL",
-  CONNECTED = "CONNECTED",
-}
+function Dashboard() {
+  const [filter, setFilter] = useState<string>(Filters.ALL);
+  const [sensorsList, setSensorsList] = useState<Record<string, SensorModel>>({});
+  const { sendMessage, isError, addListener, removeListener } = useSocketContext();
 
-const toggleOptions = [
-  { label: "All", value: ToggleOptions.ALL },
-  { label: "Connected", value: ToggleOptions.CONNECTED },
-];
-
-export function Dashboard() {
-  const [filter, setFilter] = useState(ToggleOptions.ALL);
-  const [sensorsList, setSensorsList] = useState<SensorModel[] | []>([]);
-
-  const { sendMessage, isError, addListener } = useSocketContext();
+  const handleFilterSelection = useCallback((filter: string) => {
+    setFilter(filter);
+  }, []);
 
   const isReceivingData = useRef(false);
 
-  const getSensorsList = (data: SensorModel) => {
-    if (!isReceivingData.current) {
-      isReceivingData.current = true;
-    }
-    setSensorsList((prevState) => mergeState(prevState, data));
-  };
-
   useEffect(() => {
-    addListener(getSensorsList);
-  }, [addListener]);
+    const getSensorsList = (data: SensorModel) => {
+      if (!isReceivingData.current) {
+        isReceivingData.current = true;
+      }
+      setSensorsList((prevState) => mergeState(prevState, data));
+    };
 
-  const handleCheckboxClick = (id: string, value: SensorActionStatus): void => {
+    addListener(getSensorsList);
+
+    return () => removeListener(getSensorsList);
+  }, [addListener, removeListener]);
+
+  const handleCheckboxClick = (id: string, value: string): void => {
     sendMessage(JSON.stringify({ command: value, id }));
   };
 
-  const handleClickToggleConnected = (selectedFilter: ToggleOptions) => {
-    setFilter(selectedFilter);
-  };
+  const filteredSensors = useMemo(() => {
+    const sensorsAsArray = Object.values(sensorsList);
+
+    return filter === Filters.ALL
+      ? sensorsAsArray
+      : sensorsAsArray.filter((sensor) => sensor.connected);
+  }, [filter, sensorsList]);
 
   if (isError) {
     return <ErrorSection />;
   }
 
-  const filteredSensors =
-    filter === ToggleOptions.ALL ? sensorsList : sensorsList.filter((sensor) => sensor.connected);
-
   return (
     <MainContainer>
       <ContentContainer>
-        <MainTitle>IoT Sensors Dashboard</MainTitle>
-        <ToggleWrapper>
-          <Toggle<ToggleOptions>
-            activeOption={filter}
-            options={toggleOptions}
-            onToggleClick={handleClickToggleConnected}
-          />
-        </ToggleWrapper>
+        <Header handleFilterSelection={handleFilterSelection} />
         {isReceivingData.current &&
           (filteredSensors.length > 0 ? (
             <CardsContainer>
@@ -95,3 +82,5 @@ export function Dashboard() {
     </MainContainer>
   );
 }
+
+export { Dashboard };
