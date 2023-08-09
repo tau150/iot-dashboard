@@ -19,13 +19,17 @@ interface ContextInitialValue {
   isError: boolean;
   sendMessage: (data: string) => void;
   addListener: (fn: Listener) => void;
+  removeListener: (fn: Listener) => void;
 }
 
 const initialValue = {
   isError: false,
   sendMessage: (_data: string) => undefined,
   addListener: (_fn: Listener) => undefined,
+  removeListener: (_fn: Listener) => undefined,
 };
+
+const READY_STATE = 1;
 
 export const SocketContext = createContext<ContextInitialValue>(initialValue);
 
@@ -41,6 +45,9 @@ export const SocketContextProvider = (props: PropsWithChildren): ReactElement =>
   const addListener = (fn: Listener) => {
     setListeners((prevState) => [...prevState, fn]);
   };
+
+  const removeListener = (fn: Listener) =>
+    setListeners((prevState) => prevState.filter((fns) => fns !== fn));
 
   useEffect(() => {
     let ws: WebSocket | undefined;
@@ -58,7 +65,7 @@ export const SocketContextProvider = (props: PropsWithChildren): ReactElement =>
     }
 
     return () => {
-      if (ws?.readyState === 1) {
+      if (ws?.readyState === READY_STATE) {
         ws.close();
       }
     };
@@ -69,6 +76,7 @@ export const SocketContextProvider = (props: PropsWithChildren): ReactElement =>
       sendMessage,
       isError,
       addListener,
+      removeListener,
     }),
     [isError],
   );
