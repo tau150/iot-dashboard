@@ -13,6 +13,7 @@ const SENSOR = {
   connected: false,
   unit: UNIT,
   value: null,
+  prevValue: null,
 };
 
 const mockedOnCheckboxClick = vi.fn();

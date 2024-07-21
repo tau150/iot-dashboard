@@ -7,7 +7,6 @@ describe("ErrorSection", () => {
   it("should render properly", () => {
     render(<ErrorSection />);
 
-    screen.debug();
     expect(screen.getByText(/Ooops!, something went wrong!/i)).toBeInTheDocument();
   });
 });

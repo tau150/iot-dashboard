@@ -24,6 +24,7 @@ describe("Dashboard component", async () => {
     (useSocketContext as Mock).mockReturnValue({
       sendMessage: vi.fn(),
       isError: false,
+      removeListener: vi.fn(),
       addListener: vi.fn((cb) =>
         cb({ id: "1", name: "test", connected: false, unit: "%", value: 1000 }),
       ),
@@ -47,6 +48,7 @@ describe("Dashboard component", async () => {
       sendMessage: vi.fn(),
       isError: true,
       addListener: vi.fn(),
+      removeListener: vi.fn(),
     });
 
     render(
@@ -66,6 +68,7 @@ describe("Dashboard component", async () => {
     (useSocketContext as Mock).mockReturnValue({
       sendMessage: vi.fn(),
       isError: false,
+      removeListener: vi.fn(),
       addListener: vi.fn((cb) =>
         cb({ id: "1", name: "test", connected: false, unit: "%", value: 1000 }),
       ),
@@ -92,6 +95,7 @@ describe("Dashboard component", async () => {
     (useSocketContext as Mock).mockReturnValue({
       sendMessage: vi.fn(),
       isError: false,
+      removeListener: vi.fn(),
       addListener: vi.fn((cb) => {
         cb({ id: "1", name: "pressure", connected: false, unit: "%", value: null });
         cb({ id: "2", name: "temperature", connected: true, unit: "%", value: 1000 });
