@@ -1,5 +1,15 @@
 # Iot Sensors Dashboard challenge
 
+
+## Live Preview
+
+https://iot-dashboard-pearl.vercel.app/
+
+Please, take in account that could it take some time to have the data visible, the web sockets server is deployed in a free tier just for testing purposes.
+
+
+## Run locally
+
 How to run it:
 
 - Clone the repository.
